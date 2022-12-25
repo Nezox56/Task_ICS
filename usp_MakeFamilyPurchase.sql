@@ -21,23 +21,22 @@ GO
 CREATE PROCEDURE usp_MakeFamilyPurchase
 	@FamilySurName varchar(255)
 AS
-BEGIN
-	
+BEGIN TRY
+	SET XACT_ABORT, NOCOUNT ON;
+
 	if(SELECT COUNT(1) FROM Family where FamilySurName = @FamilySurName) = 0
-	BEGIN
-		Select 'Такой семьи нет' Message
-		Return;
-	END 
+		THROW 51000, 'РўР°РєРѕР№ СЃРµРјСЊРё РЅРµС‚!', 1;
+	ELSE
+		DECLARE @result int
 
-	SET NOCOUNT ON;
-	
-	declare @result int
+		SELECT @result = BudgetValue - SUM(Value)
+		FROM Family, Basket
+		WHERE FamilySurName = @FamilySurName
+		GROUP BY BudgetValue
 
-	SELECT @result = BudgetValue - SUM(Value)
-	FROM Family, Basket
-	WHERE FamilySurName = @FamilySurName
-	group by BudgetValue
-
-	UPDATE  Family set BudgetValue = @result
-END
+		UPDATE  Family set BudgetValue = @result
+END TRY
+BEGIN CATCH
+	PRINT 'Error: ' + ERROR_MESSAGE()
+END CATCH
 GO
