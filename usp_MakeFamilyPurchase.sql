@@ -24,7 +24,7 @@ AS
 BEGIN TRY
 	SET XACT_ABORT, NOCOUNT ON;
 
-	if(SELECT COUNT(1) FROM Family where FamilySurName = @FamilySurName) = 0
+	IF(SELECT COUNT(1) FROM Family where FamilySurName = @FamilySurName) = 0
 		THROW 51000, 'Такой семьи нет!', 1;
 	ELSE
 		DECLARE @result int
