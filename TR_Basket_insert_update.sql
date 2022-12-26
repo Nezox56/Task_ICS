@@ -28,17 +28,16 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	declare @max_id int = (select TOP 1 ID_SKU from Basket order by ID desc)
-	declare @min_id int = (select ID_SKU from Basket order by ID desc OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY )
+	declare @last_id int = (select TOP 1 ID_SKU from Basket order by ID desc)
+	declare @penultimate_id int = (select ID_SKU from Basket order by ID desc OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY )
 
-	if @max_id = @min_id
+	if @last_id = @penultimate_id
 		begin
-			UPDATE Basket set DiscountValue = (Value * 5)/100 where ID_SKU = @max_id
+			UPDATE Basket set DiscountValue = (Value * 5)/100 where ID_SKU = @last_id
 		end
 	else
 		begin
-			UPDATE  Basket set DiscountValue = 0 where ID_SKU = @max_id
+			UPDATE  Basket set DiscountValue = 0 where ID_SKU = @last_id
 		end
-
 END
 GO
